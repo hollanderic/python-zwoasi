@@ -52,3 +52,8 @@ nosetests.xml
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
 .idea/uiDesigner.xml
+
+*.jpg
+*.jpg.txt
+*.tiff
+*.tiff.txt
