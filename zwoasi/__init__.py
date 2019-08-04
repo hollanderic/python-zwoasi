@@ -45,7 +45,7 @@ def _init_camera(id_):
     if r:
         raise zwo_errors[r]
     return
-   
+
 
 def _close_camera(id_):
     r = zwolib.ASICloseCamera(id_)
@@ -151,7 +151,7 @@ def _get_dropped_frames(id_):
         raise zwo_errors[r]
     return dropped_frames.value
 
-    
+
 def _enable_dark_subtract(id_, filename):
     r = zwolib.ASIEnableDarkSubtract(id_, filename)
     if r:
@@ -164,14 +164,14 @@ def _disable_dark_subtract(id_):
     if r:
         raise zwo_errors[r]
     return
-    
+
 
 def _start_video_capture(id_):
     r = zwolib.ASIStartVideoCapture(id_)
     if r:
         raise zwo_errors[r]
     return
-    
+
 
 def _stop_video_capture(id_):
     r = zwolib.ASIStopVideoCapture(id_)
@@ -193,11 +193,11 @@ def _get_video_data(id_, timeout, buffer_=None):
         if not isinstance(buffer_, bytearray):
             raise TypeError('Supplied buffer must be a bytearray')
         sz = len(buffer_)
-    
+
     cbuf_type = c.c_char * len(buffer_)
     cbuf = cbuf_type.from_buffer(buffer_)
     r = zwolib.ASIGetVideoData(id_, cbuf, sz, int(timeout))
-    
+
     if r:
         raise zwo_errors[r]
     return buffer_
@@ -252,11 +252,11 @@ def _get_data_after_exposure(id_, buffer_=None):
         if not isinstance(buffer_, bytearray):
             raise TypeError('Supplied buffer must be a bytearray')
         sz = len(buffer_)
-    
+
     cbuf_type = c.c_char * len(buffer_)
     cbuf = cbuf_type.from_buffer(buffer_)
     r = zwolib.ASIGetDataAfterExp(id_, cbuf, sz)
-    
+
     if r:
         raise zwo_errors[r]
     return buffer_
@@ -352,10 +352,10 @@ class Camera(object):
             logger.error('could not open camera ' + str(id_))
             logger.debug(traceback.format_exc())
             raise
-            
+
     def __del__(self):
             self.close()
-            
+
     def get_camera_property(self):
         return _get_camera_property(self.id)
 
@@ -380,13 +380,13 @@ class Camera(object):
 
     def get_roi_start_position(self):
         return _get_start_position(self.id)
-        
+
     def set_roi_start_position(self, start_x, start_y):
         _set_start_position(self.id, start_x, start_y)
 
     def get_dropped_frames(self):
         return _get_dropped_frames(self.id)
-         
+
     def close(self):
         """Close the camera in the ASI library.
 
@@ -428,7 +428,7 @@ class Camera(object):
 
         if image_type is None:
             image_type = whbi[3]
-            
+
         if width is None:
             width = int(cam_info['MaxWidth'] / bins)
             width -= width % 8  # Must be a multiple of 8
@@ -454,7 +454,7 @@ class Camera(object):
 
     def set_control_value(self, control_type, value, auto=False):
         _set_control_value(self.id, control_type, value, auto)
-    
+
     def get_bin(self):
         """Retrieves the pixel binning. Type :class:`int`.
 
@@ -467,7 +467,7 @@ class Camera(object):
 
     def stop_exposure(self):
         _stop_exposure(self.id)
-        
+
     def get_exposure_status(self):
         return _get_exposure_status(self.id)
 
@@ -479,13 +479,13 @@ class Camera(object):
 
     def disable_dark_subtract(self):
         _disable_dark_subtract(self.id)
-        
+
     def start_video_capture(self):
         """Enable video capture mode.
 
         Retrieve video frames with :func:`capture_video_frame()`."""
         return _start_video_capture(self.id)
-    
+
     def stop_video_capture(self):
         """Leave video capture mode."""
         return _stop_video_capture(self.id)
@@ -502,14 +502,14 @@ class Camera(object):
     def pulse_guide_on(self, direction):
         _pulse_guide_on(self.id, direction)
         return
-    
+
     def pulse_guide_off(self, direction):
         _pulse_guide_off(self.id, direction)
         return
 
     def get_id(self):
         return _get_id(self.id)
-    
+
     # Helper functions
     def get_image_type(self):
         return self.get_roi_format()[3]
@@ -533,7 +533,7 @@ class Camera(object):
         status = self.get_exposure_status()
         if status != ASI_EXP_SUCCESS:
             raise ZWO_CaptureError('Could not capture image', status)
-        
+
         data = self.get_data_after_exposure(buffer_)
         whbi = self.get_roi_format()
         shape = [whbi[1], whbi[0]]
@@ -638,7 +638,7 @@ class _ASI_CAMERA_INFO(c.Structure):
         ('ElecPerADU', c.c_float),
         ('Unused', c.c_char * 24),
     ]
-    
+
     def get_dict(self):
         r = {}
         for k, _ in self._fields_:
@@ -647,7 +647,7 @@ class _ASI_CAMERA_INFO(c.Structure):
                 v = v.decode()
             r[k] = v
         del r['Unused']
-        
+
         r['SupportedBins'] = []
         for i in range(len(self.SupportedBins)):
             if self.SupportedBins[i]:

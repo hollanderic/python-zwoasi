@@ -55,7 +55,9 @@ else:
     camera_id = 0
     print('Using #%d: %s' % (camera_id, cameras_found[camera_id]))
 
+print('Opening camera %d\n'%camera_id)
 camera = asi.Camera(camera_id)
+print('Camera Init\'d')
 camera_info = camera.get_camera_property()
 
 # Get all of the camera controls
