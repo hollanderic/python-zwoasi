@@ -78,11 +78,13 @@ camera.set_control_value(asi.ASI_BANDWIDTHOVERLOAD, camera.get_controls()['BandW
 camera.disable_dark_subtract()
 
 camera.set_control_value(asi.ASI_GAIN, 150)
-camera.set_control_value(asi.ASI_EXPOSURE, 30000)
-camera.set_control_value(asi.ASI_WB_B, 99)
-camera.set_control_value(asi.ASI_WB_R, 75)
-camera.set_control_value(asi.ASI_GAMMA, 50)
-camera.set_control_value(asi.ASI_BRIGHTNESS, 50)
+camera.set_control_value(asi.ASI_EXPOSURE, 80000)
+
+
+camera.set_control_value(asi.ASI_WB_B, 50)
+camera.set_control_value(asi.ASI_WB_R, 50)
+camera.set_control_value(asi.ASI_GAMMA, 100)
+camera.set_control_value(asi.ASI_BRIGHTNESS, 99)
 camera.set_control_value(asi.ASI_FLIP, 0)
 
 
@@ -95,7 +97,7 @@ except (KeyboardInterrupt, SystemExit):
     raise
 except:
     pass
-
+'''
 print('Capturing a single 8-bit mono image')
 filename = 'image_mono.jpg'
 camera.set_image_type(asi.ASI_IMG_RAW8)
@@ -110,7 +112,7 @@ camera.set_image_type(asi.ASI_IMG_RAW16)
 camera.capture(filename=filename)
 print('Saved to %s' % filename)
 save_control_values(filename, camera.get_control_values())
-
+'''
 if camera_info['IsColorCam']:
     filename = 'image_color.jpg'
     camera.set_image_type(asi.ASI_IMG_RGB24)
@@ -129,6 +131,10 @@ except (KeyboardInterrupt, SystemExit):
     raise
 except:
     pass
+
+
+sys.exit()
+
 
 print('Enabling video mode')
 camera.start_video_capture()
