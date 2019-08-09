@@ -8,7 +8,7 @@ MenuItem_about = 100
 class MainWindow(wx.Frame):
     def __init__(self, parent, ID, title):
         wx.Frame.__init__(self, parent, ID, title,
-                        wx.DefaultPosition, wx.Size(800, 600),
+                        wx.DefaultPosition, wx.Size(1000, 600),
                         wx.DEFAULT_FRAME_STYLE)# & ~ (wx.RESIZE_BORDER |
                        # wx.MAXIMIZE_BOX))
 
@@ -53,8 +53,13 @@ class MainWindow(wx.Frame):
         MenuBar.Append(help, "&Help")
 
         self.SetMenuBar(MenuBar)
+        self.Bind(wx.EVT_SIZE, self.onSize)
+
         self.Bind(wx.EVT_MENU, self.QuitGame, menu_exit)
         self.Centre()
+
+    def onSize(self, event):
+        print "size event" + str(self.Size)
 
     def QuitGame(self, event):
         '''
