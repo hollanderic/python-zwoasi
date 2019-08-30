@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import wx
+import zwoasi
 
 MenuItem_exit = 101
 MenuItem_about = 100
 
 class MainWindow(wx.Frame):
-    def __init__(self, parent, ID, title):
+    def __init__(self, parent, ID, title, cam):
         wx.Frame.__init__(self, parent, ID, title,
                         wx.DefaultPosition, wx.Size(1000, 600),
                         wx.DEFAULT_FRAME_STYLE)# & ~ (wx.RESIZE_BORDER |
@@ -16,8 +17,32 @@ class MainWindow(wx.Frame):
 
         self.CreateStatusBar()
         self.SetStatusText("Active")
+        self.Camera = cam
 
-        self.FirePic = wx.Bitmap()
+        self.Camera.set_control_value(zwoasi.ASI_BANDWIDTHOVERLOAD, self.Camera.get_controls()['BandWidth']['MinValue'])
+
+# Set some sensible defaults. They will need adjusting depending upon
+# the sensitivity, lens and lighting conditions used.
+        self.Camera.disable_dark_subtract()
+        self.Camera.set_image_type(zwoasi.ASI_IMG_RAW16)
+
+        self.Camera.set_control_value(zwoasi.ASI_GAIN, 150)
+        self.Camera.set_control_value(zwoasi.ASI_EXPOSURE, 80000)
+
+        img = self.Camera.capture()
+
+        from PIL import Image
+        mode = None
+        if len(img.shape) == 3:
+            img = img[:, :, ::-1]  # Convert BGR to RGB
+        #if whbi[3] == ASI_IMG_RAW16:
+        mode = 'I;16'
+        image = Image.fromarray(img, mode=mode)
+
+
+        #print "Picture = %d:%d:%d"%(len(self.FirePic), len(self.FirePic[0]),len(self.FirePic[0][0]) )
+
+        #self.FirePic = wx.Bitmap()
         #wx.EVT_PAINT(self, self.ShowBack)
 
 
@@ -34,6 +59,7 @@ class MainWindow(wx.Frame):
         help = wx.Menu()
 
         screen = wx.Window(self, -1, (0, 0), (790, 349))#, style=wx.BORDER_SUNKEN)
+
         screen.SetBackgroundColour(mygreen)
         #wx.EVT_PAINT(screen, self.ShowBack)
 
@@ -73,7 +99,28 @@ class MainWindow(wx.Frame):
 
 class Zwo(wx.App):
     def OnInit(self):
-        frame = MainWindow(None, -1, "ZWOView")
+        libfile = "/home/hollande/src/external/zwo/lib/x64/libASICamera2.so"
+        zwoasi.init(libfile)
+        NumCameras = zwoasi.get_num_cameras()
+        print "Found %d Cameras"%NumCameras
+
+        Cameras = zwoasi.list_cameras()
+
+        for i in range(NumCameras):
+            print(' [%d]--> %s' % (i, Cameras[i]))
+
+
+
+        self.Camera = zwoasi.Camera(0)
+        self.CameraProperties = self.Camera.get_camera_property()
+        self.CameraControls = self.Camera.get_controls()
+#
+#        for ctrl in self.CameraControls.keys():
+#            print "%s" % ctrl
+#            for  c2 in self.CameraControls[ctrl].keys():
+#                print "    %s: %s" % (c2, repr(self.CameraControls[ctrl][c2]))
+
+        frame = MainWindow(None, -1, "ZWOView", self.Camera)
         frame.Show(True)
         self.SetTopWindow(frame)
         return(True)
