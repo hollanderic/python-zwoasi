@@ -6,6 +6,13 @@ import zwoasi
 MenuItem_exit = 101
 MenuItem_about = 100
 
+class ZWOImage:
+    def __init__(self, buf):
+        self.buffer = buf
+        print "buffer type = "+str(type(self.buffer))
+        print "buffer dimensions = " + str(self.buffer.shape)
+
+
 class MainWindow(wx.Frame):
     def __init__(self, parent, ID, title, cam):
         wx.Frame.__init__(self, parent, ID, title,
@@ -24,25 +31,33 @@ class MainWindow(wx.Frame):
 # Set some sensible defaults. They will need adjusting depending upon
 # the sensitivity, lens and lighting conditions used.
         self.Camera.disable_dark_subtract()
-        self.Camera.set_image_type(zwoasi.ASI_IMG_RAW16)
+        self.Camera.set_image_type(zwoasi.ASI_IMG_RAW8)
 
         self.Camera.set_control_value(zwoasi.ASI_GAIN, 150)
         self.Camera.set_control_value(zwoasi.ASI_EXPOSURE, 80000)
 
-        img = self.Camera.capture()
 
+        print "Format = " + str(self.Camera.get_roi_format())
+        img = self.Camera.capture()
+        zimg = ZWOImage(img)
+
+        #print "shape = " + str(img) + "  "+str(img.shape)
         from PIL import Image
         mode = None
         if len(img.shape) == 3:
             img = img[:, :, ::-1]  # Convert BGR to RGB
         #if whbi[3] == ASI_IMG_RAW16:
-        mode = 'I;16'
+        #mode = 'I;8'
         image = Image.fromarray(img, mode=mode)
+        image.save("test.jpg")
+        print "image type = "+str(image)
+
 
 
         #print "Picture = %d:%d:%d"%(len(self.FirePic), len(self.FirePic[0]),len(self.FirePic[0][0]) )
 
-        #self.FirePic = wx.Bitmap()
+        self.FirePic = wx.BitmapFromBuffer(200,200,img)
+        print self.FirePic
         #wx.EVT_PAINT(self, self.ShowBack)
 
 
@@ -58,9 +73,12 @@ class MainWindow(wx.Frame):
         file = wx.Menu()
         help = wx.Menu()
 
-        screen = wx.Window(self, -1, (0, 0), (790, 349))#, style=wx.BORDER_SUNKEN)
+        #screen = wx.Window(self, -1, (0, 0), (790, 349))#, style=wx.BORDER_SUNKEN)
+        screen = wx.Panel(self, wx.ID_ANY, size=(790, 394))
+        bg = wx.ClientDC(screen)
+        bg.DrawBitmap(self.FirePic, 0, 0)
 
-        screen.SetBackgroundColour(mygreen)
+        #screen.SetBackgroundColour(mygreen)
         #wx.EVT_PAINT(screen, self.ShowBack)
 
         controls = wx.Panel(self, -1, (0, 350), (800, 250))
@@ -83,6 +101,12 @@ class MainWindow(wx.Frame):
 
         self.Bind(wx.EVT_MENU, self.QuitGame, menu_exit)
         self.Centre()
+
+
+
+    def ShowBack(self,event):
+        bg = wx.PaintDC(self)
+        bg.DrawBitmap(self.FirePic, 0, 0)
 
     def onSize(self, event):
         print "size event" + str(self.Size)
